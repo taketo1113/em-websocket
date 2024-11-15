@@ -39,17 +39,17 @@ describe EM::WebSocket::Handshake do
   end
   
   it "should handle good request" do
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
   
   it "should handle good request to secure default port if secure mode is enabled" do
-    handshake(@secure_request, true).
-      should succeed_with_upgrade(@secure_response)
+    expect(handshake(@secure_request, true))
+      .to succeed_with_upgrade(@secure_response)
   end
   
   it "should not handle good request to secure default port if secure mode is disabled" do
-    handshake(@secure_request, false).
-      should_not succeed_with_upgrade(@secure_response)
+    expect(handshake(@secure_request, false))
+      .to_not succeed_with_upgrade(@secure_response)
   end
   
   it "should handle good request on nondefault port" do
@@ -58,7 +58,7 @@ describe EM::WebSocket::Handshake do
     @response[:headers]['Sec-WebSocket-Location'] =
       'ws://example.com:8081/demo'
 
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
   
   it "should handle good request to secure nondefault port" do
@@ -66,22 +66,22 @@ describe EM::WebSocket::Handshake do
     @secure_request[:headers]['Host'] = 'example.com:8081'
     @secure_response[:headers]['Sec-WebSocket-Location'] = 'wss://example.com:8081/demo'
     
-    handshake(@secure_request, true).
-      should succeed_with_upgrade(@secure_response)
+    expect(handshake(@secure_request, true))
+      .to succeed_with_upgrade(@secure_response)
   end
   
   it "should handle good request with no protocol" do
     @request[:headers].delete('Sec-WebSocket-Protocol')
     @response[:headers].delete("Sec-WebSocket-Protocol")
 
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
   
   it "should handle extra headers by simply ignoring them" do
     @request[:headers]['EmptyValue'] = ""
     @request[:headers]['AKey'] = "AValue"
 
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
   
   it "should raise error on HTTP request" do
@@ -96,33 +96,33 @@ describe EM::WebSocket::Handshake do
       'Connection' => 'keep-alive',
     }
     
-    handshake(@request).should fail_with_error(EM::WebSocket::HandshakeError)
+    expect(handshake(@request)).to fail_with_error(EM::WebSocket::HandshakeError)
   end
   
   it "should raise error on wrong method" do
     @request[:method] = 'POST'
 
-    handshake(@request).should fail_with_error(EM::WebSocket::HandshakeError)
+    expect(handshake(@request)).to fail_with_error(EM::WebSocket::HandshakeError)
   end
   
   it "should raise error if upgrade header incorrect" do
     @request[:headers]['Upgrade'] = 'NonWebSocket'
 
-    handshake(@request).should fail_with_error(EM::WebSocket::HandshakeError)
+    expect(handshake(@request)).to fail_with_error(EM::WebSocket::HandshakeError)
   end
   
   it "should raise error if Sec-WebSocket-Protocol is empty" do
     @request[:headers]['Sec-WebSocket-Protocol'] = ''
 
-    handshake(@request).should fail_with_error(EM::WebSocket::HandshakeError)
+    expect(handshake(@request)).to fail_with_error(EM::WebSocket::HandshakeError)
   end
   
   %w[Sec-WebSocket-Key1 Sec-WebSocket-Key2].each do |header|
     it "should raise error if #{header} has zero spaces" do
       @request[:headers][header] = 'nospaces'
 
-      handshake(@request).
-        should fail_with_error(EM::WebSocket::HandshakeError, 'Websocket Key1 or Key2 does not contain spaces - this is a symptom of a cross-protocol attack')
+      expect(handshake(@request))
+        .to fail_with_error(EM::WebSocket::HandshakeError, 'Websocket Key1 or Key2 does not contain spaces - this is a symptom of a cross-protocol attack')
     end
   end
   
@@ -132,30 +132,30 @@ describe EM::WebSocket::Handshake do
     # The error message isn't correct since key1 is used to heuristically
     # determine the protocol version in use, however this test at least checks
     # that the handshake does correctly fail
-    handshake(@request).
-      should fail_with_error(EM::WebSocket::HandshakeError, 'Extra bytes after header')
+    expect(handshake(@request))
+      .to fail_with_error(EM::WebSocket::HandshakeError, 'Extra bytes after header')
   end
 
   it "should raise error if Sec-WebSocket-Key2 is missing" do
     @request[:headers].delete("Sec-WebSocket-Key2")
 
-    handshake(@request).
-      should fail_with_error(EM::WebSocket::HandshakeError, 'WebSocket key1 or key2 is missing')
+    expect(handshake(@request))
+      .to fail_with_error(EM::WebSocket::HandshakeError, 'WebSocket key1 or key2 is missing')
   end
 
   it "should raise error if spaces do not divide numbers in Sec-WebSocket-Key* " do
     @request[:headers]['Sec-WebSocket-Key2'] = '12998 5 Y3 1.P00'
 
-    handshake(@request).
-      should fail_with_error(EM::WebSocket::HandshakeError, 'Invalid Key "12998 5 Y3 1.P00"')
+    expect(handshake(@request))
+      .to fail_with_error(EM::WebSocket::HandshakeError, 'Invalid Key "12998 5 Y3 1.P00"')
   end
   
   it "should raise error if the HTTP header is empty" do
     handshake = EM::WebSocket::Handshake.new(false)
     handshake.receive_data("\r\n\r\nfoobar")
     
-    handshake.
-      should fail_with_error(EM::WebSocket::HandshakeError, 'Invalid HTTP header: Could not parse data entirely (4 != 10)')
+    expect(handshake)
+      .to fail_with_error(EM::WebSocket::HandshakeError, 'Invalid HTTP header: Could not parse data entirely (4 != 10)')
   end
 
   # This might seems crazy, but very occasionally we saw multiple "Upgrade:
@@ -172,8 +172,8 @@ describe EM::WebSocket::Handshake do
     handshake.receive_data(headers)
 
     handshake.errback { |e|
-      e.class.should == EM::WebSocket::HandshakeError
-      e.message.should == 'Invalid upgrade header: ["WebSocket", "WebSocket"]'
+      expect(e.class).to eq EM::WebSocket::HandshakeError
+      expect(e.message).to eq 'Invalid upgrade header: ["WebSocket", "WebSocket"]'
     }
   end
   
@@ -184,12 +184,12 @@ describe EM::WebSocket::Handshake do
     handshake = EM::WebSocket::Handshake.new(false)
     handshake.receive_data(incomplete_request)
     
-    handshake.instance_variable_get(:@deferred_status).should == nil
+    expect(handshake.instance_variable_get(:@deferred_status)).to eq nil
     
     # Send the remaining header
     handshake.receive_data(rest)
     
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
   
   it "should cope with requests where the third key is split" do
@@ -200,17 +200,17 @@ describe EM::WebSocket::Handshake do
     handshake = EM::WebSocket::Handshake.new(false)
     handshake.receive_data(incomplete_request)
     
-    handshake.instance_variable_get(:@deferred_status).should == nil
+    expect(handshake.instance_variable_get(:@deferred_status)).to eq nil
     
     # Send the remaining third key
     handshake.receive_data(rest)
     
-    handshake(@request).should succeed_with_upgrade(@response)
+    expect(handshake(@request)).to succeed_with_upgrade(@response)
   end
 
   it "should fail if the request URI is invalid" do
     @request[:path] = "/%"
-    handshake(@request).should \
+    expect(handshake(@request)).to \
       fail_with_error(EM::WebSocket::HandshakeError, 'Invalid request URI: /%')
   end
 end

@@ -40,7 +40,7 @@ describe "draft05" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.supports_close_codes?.should == false
+          expect(ws.supports_close_codes?).to eq false
           done
         }
       }

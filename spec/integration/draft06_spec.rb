@@ -50,14 +50,14 @@ describe "draft06" do
     em {
       start_server { |server|
         server.onopen {
-          server.instance_variable_get(:@handler).class.should == EventMachine::WebSocket::Handler06
+          expect(server.instance_variable_get(:@handler).class).to eq EventMachine::WebSocket::Handler06
         }
       }
       
       start_client { |client|
         client.onopen {
-          client.handshake_response.lines.sort.
-            should == format_response(@response).lines.sort
+          expect(client.handshake_response.lines.sort)
+            .to eq format_response(@response).lines.sort
           done
         }
       }
@@ -68,9 +68,9 @@ describe "draft06" do
     em {
       start_server { |server|
         server.onmessage { |msg|
-          msg.should == 'Hello'
+          expect(msg).to eq 'Hello'
           if msg.respond_to?(:encoding)
-            msg.encoding.should == Encoding.find("UTF-8")
+            expect(msg.encoding).to eq Encoding.find("UTF-8")
           end
           done
         }
@@ -92,11 +92,11 @@ describe "draft06" do
       start_server { |ws|
         ws.onclose { |event|
           # 2. Receive close event in server
-          event.should == {
+          expect(event).to eq({
             :code => 4004,
             :reason => "close reason",
             :was_clean => true,
-          }
+          })
           done
         }
       }
@@ -115,11 +115,11 @@ describe "draft06" do
     em {
       start_server { |ws|
         ws.onclose { |event|
-          event.should == {
+          expect(event).to eq({
             :code => 1005,
             :reason => "",
             :was_clean => true,
-          }
+          })
           done
         }
       }
@@ -135,7 +135,7 @@ describe "draft06" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.supports_close_codes?.should == true
+          expect(ws.supports_close_codes?).to eq true
           done
         }
       }

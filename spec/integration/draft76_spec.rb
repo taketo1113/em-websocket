@@ -52,8 +52,8 @@ describe "WebSocket server draft76" do
 
       start_client { |connection|
         connection.onopen {
-          connection.handshake_response.lines.sort.
-            should == format_response(@response).lines.sort
+          expect(connection.handshake_response.lines.sort)
+            .to eq format_response(@response).lines.sort
           done
         }
       }
@@ -74,8 +74,7 @@ describe "WebSocket server draft76" do
       # Check that this causes a termination string to be returned and the
       # connection close
       connection.onclose {
-        connection.packets[0].should ==
-          EM::WebSocket::Handler76::TERMINATE_STRING
+        expect(connection.packets[0]).to eq EM::WebSocket::Handler76::TERMINATE_STRING
         done
       }
     }
@@ -108,7 +107,7 @@ describe "WebSocket server draft76" do
     em {
       start_server { |ws|
         ws.onmessage { |msg|
-          msg.should == "\n\000"
+          expect(msg).to eq "\n\000"
         }
       }
 
@@ -130,8 +129,8 @@ describe "WebSocket server draft76" do
     em {
       start_server { |server|
         server.onerror { |error|
-          error.should be_an_instance_of EM::WebSocket::WSMessageTooBigError
-          error.message.should == "Frame length too long (1180591620717411303296 bytes)"
+          expect(error).to be_an_instance_of EM::WebSocket::WSMessageTooBigError
+          expect(error.message).to eq "Frame length too long (1180591620717411303296 bytes)"
           done
         }
       }
@@ -152,8 +151,8 @@ describe "WebSocket server draft76" do
     em {
       start_server { |server|
         server.onerror { |error|
-          error.should be_an_instance_of EM::WebSocket::WSProtocolError
-          error.message.should == "Invalid frame received"
+          expect(error).to be_an_instance_of EM::WebSocket::WSProtocolError
+          expect(error.message).to eq "Invalid frame received"
           done
         }
       }
@@ -170,8 +169,8 @@ describe "WebSocket server draft76" do
     em {
       start_server { |server|
         server.onerror { |error|
-          error.should be_an_instance_of EM::WebSocket::HandshakeError
-          error.message.should == "Invalid HTTP header: Could not parse data entirely (1 != 29)"
+          expect(error).to be_an_instance_of EM::WebSocket::HandshakeError
+          expect(error.message).to eq "Invalid HTTP header: Could not parse data entirely (1 != 29)"
           done
         }
       }
@@ -192,8 +191,8 @@ describe "WebSocket server draft76" do
       connection.send_data(data[0...(data.length / 2)])
 
       connection.onopen {
-        connection.handshake_response.lines.sort.
-          should == format_response(@response).lines.sort
+        expect(connection.handshake_response.lines.sort)
+          .to eq format_response(@response).lines.sort
         done
       }
 
@@ -208,7 +207,7 @@ describe "WebSocket server draft76" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.supports_close_codes?.should == false
+          expect(ws.supports_close_codes?).to eq false
           done
         }
       }

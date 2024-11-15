@@ -55,8 +55,8 @@ describe "draft13" do
       connection = start_client
 
       connection.onopen {
-        connection.handshake_response.lines.sort.
-          should == format_response(@response).lines.sort
+        expect(connection.handshake_response.lines.sort)
+          .to eq format_response(@response).lines.sort
         done
       }
     }
@@ -67,14 +67,14 @@ describe "draft13" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.should be_pingable
+          expect(ws).to be_pingable
           EM.next_tick {
-            ws.ping('hello').should == true
+            expect(ws.ping('hello')).to eq true
           }
 
         }
         ws.onpong { |data|
-          data.should == 'hello'
+          expect(data).to eq 'hello'
           done
         }
       }
@@ -84,7 +84,7 @@ describe "draft13" do
       # Confusing, fake onmessage means any data after the handshake
       connection.onmessage { |data|
         # This is what a ping looks like
-        data.should == "\x89\x05hello"
+        expect(data).to eq "\x89\x05hello"
         # This is what a pong looks like
         connection.send_data("\x8a\x05hello")
       }
@@ -95,7 +95,7 @@ describe "draft13" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.supports_close_codes?.should == true
+          expect(ws.supports_close_codes?).to eq true
           done
         }
       }

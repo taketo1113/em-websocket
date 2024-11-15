@@ -13,8 +13,8 @@ shared_examples_for "a WebSocket server drafts 3 and above" do
         
         ws.onerror { |e|
           # 3: Client should receive onerror
-          e.class.should == EM::WebSocket::WSProtocolError
-          e.message.should == "Close handshake un-acked after 0.1s, closing tcp connection"
+          expect(e.class).to eq EM::WebSocket::WSProtocolError
+          expect(e.message).to eq "Close handshake un-acked after 0.1s, closing tcp connection"
           server_onerror_fired = true
         }
         
@@ -26,14 +26,14 @@ shared_examples_for "a WebSocket server drafts 3 and above" do
         client.onmessage { |msg|
           # 2: Client does not respond to close handshake (the fake client 
           # doesn't understand them at all hence this is in onmessage)
-          msg.should =~ /Close message/ if version >= 6
+          expect(msg).to match /Close message/ if version >= 6
           client_got_close_handshake = true
         }
         
         client.onclose {
-          server_onerror_fired.should == true
-          server_onclose_fired.should == true
-          client_got_close_handshake.should == true
+          expect(server_onerror_fired).to eq true
+          expect(server_onclose_fired).to eq true
+          expect(client_got_close_handshake).to eq true
           done
         }
       }

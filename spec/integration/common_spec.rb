@@ -31,15 +31,15 @@ describe "WebSocket server" do
       start_server do |ws|
         ws.onopen { |handshake|
           headers = handshake.headers
-          headers["Connection"].should == "Upgrade"
-          headers["Upgrade"].should == "websocket"
-          headers["Host"].to_s.should == "127.0.0.1:12345"
-          handshake.path.should == "/"
-          handshake.query.should == {}
-          handshake.origin.should == 'http://example.com'
+          expect(headers["Connection"]).to eq "Upgrade"
+          expect(headers["Upgrade"]).to eq "websocket"
+          expect(headers["Host"].to_s).to eq "127.0.0.1:12345"
+          expect(handshake.path).to eq "/"
+          expect(handshake.query).to eq({})
+          expect(handshake.origin).to eq 'http://example.com'
         }
         ws.onclose {
-          ws.state.should == :closed
+          expect(ws.state).to eq :closed
           done
         }
       end
@@ -59,13 +59,13 @@ describe "WebSocket server" do
 
       start_server do |ws|
         ws.onopen { |handshake|
-          handshake.path.should == '/hello'
-          handshake.query_string.split('&').sort.
-            should == ["baz=qux", "foo=bar"]
-          handshake.query.should == {"foo"=>"bar", "baz"=>"qux"}
+          expect(handshake.path).to eq '/hello'
+          expect(handshake.query_string.split('&').sort)
+            .to eq ["baz=qux", "foo=bar"]
+          expect(handshake.query).to eq({"foo"=>"bar", "baz"=>"qux"})
         }
         ws.onclose {
-          ws.state.should == :closed
+          expect(ws.state).to eq :closed
           done
         }
       end
@@ -77,9 +77,9 @@ describe "WebSocket server" do
       # 1. Start WebSocket server
       start_server { |ws|
         # 3. Try to send a message to the socket
-        lambda {
+        expect {
           ws.send('early message')
-        }.should raise_error('Cannot send data before onopen callback')
+        }.to raise_error('Cannot send data before onopen callback')
         done
       }
 
@@ -99,10 +99,10 @@ describe "WebSocket server" do
       start_server do |ws|
         ws.onopen { |handshake|
           headers = handshake.headers
-          headers["Host"].to_s.should == "127.0.0.1:12345"
+          expect(headers["Host"].to_s).to eq "127.0.0.1:12345"
         }
         ws.onclose {
-          ws.state.should == :closed
+          expect(ws.state).to eq :closed
           done
         }
       end
@@ -116,8 +116,8 @@ describe "WebSocket server" do
           # Increase the message size by one on each loop
           ws.onmessage{|msg| ws.send(msg + "x") }
           ws.onclose{|status|
-            status[:code].should == 1006 # Unclean
-            status[:was_clean].should be false
+            expect(status[:code]).to eq 1006 # Unclean
+            expect(status[:was_clean]).to be false
           }
         end
 
@@ -127,7 +127,7 @@ describe "WebSocket server" do
           ws.disconnect { done } # Server closed the connection
           ws.stream { |msg|
             # minus frame size ? (getting 146 max here)
-            msg.data.size.should <= 150
+            expect(msg.data.size).to be <= 150
             # Return back the message
             ws.send_msg(msg.data)
           }

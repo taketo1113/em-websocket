@@ -7,7 +7,7 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onopen { |handshake|
-          handshake.protocol_version.should == version
+          expect(handshake.protocol_version).to eq version
           done
         }
       }
@@ -20,7 +20,7 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onopen { |handshake|
-          handshake.origin.should == 'http://example.com'
+          expect(handshake.origin).to eq 'http://example.com'
           done
         }
       }
@@ -33,7 +33,7 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.remote_ip.should == "127.0.0.1"
+          expect(ws.remote_ip).to eq "127.0.0.1"
           done
         }
       }
@@ -46,7 +46,7 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onmessage { |message|
-          message.should == "hello server"
+          expect(message).to eq "hello server"
           done
         }
       }
@@ -78,9 +78,9 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onopen {
-          lambda {
+          expect {
             ws.close(2000)
-          }.should raise_error("Application code may only use codes from 1000, 3000-4999")
+          }.to raise_error("Application code may only use codes from 1000, 3000-4999")
           done
         }
       }
@@ -97,7 +97,7 @@ shared_examples_for "a websocket server" do
           ws.close_connection
         }
         ws.onclose { |event|
-          event.should == {:code => 1006, :was_clean => false}
+          expect(event).to eq({:code => 1006, :was_clean => false})
           done
         }
       }
@@ -109,7 +109,7 @@ shared_examples_for "a websocket server" do
     em {
       start_server { |ws|
         ws.onclose { |event|
-          event.should == {:code => 1006, :was_clean => false}
+          expect(event).to eq({:code => 1006, :was_clean => false})
           done
         }
       }
@@ -130,7 +130,7 @@ shared_examples_for "a websocket server" do
         }
 
         ws.onerror { |e|
-          e.message.should == "application error"
+          expect(e.message).to eq "application error"
           done
         }
       }
@@ -147,7 +147,7 @@ shared_examples_for "a websocket server" do
         }
 
         server.onerror { |e|
-          e.message.should == "application error"
+          expect(e.message).to eq "application error"
           done
         }
       }
@@ -168,7 +168,7 @@ shared_examples_for "a websocket server" do
         }
 
         server.onerror { |e|
-          e.message.should == "application error"
+          expect(e.message).to eq "application error"
           done
         }
       }
@@ -190,8 +190,8 @@ shared_examples_for "a websocket server" do
 
         server.onerror { |e|
           # 3: Error should be reported to server
-          e.class.should == EventMachine::WebSocket::WSMessageTooBigError
-          e.message.should =~ /Frame length too long/
+          expect(e.class).to eq EventMachine::WebSocket::WSMessageTooBigError
+          expect(e.message).to match /Frame length too long/
         }
       }
 
@@ -228,14 +228,14 @@ shared_examples_for "a websocket server" do
             s = "ê" # utf-8 string
             s.encode!("ISO-8859-1")
             s.force_encoding("UTF-8")
-            s.valid_encoding?.should == false # now invalid utf8
+            expect(s.valid_encoding?).to eq false # now invalid utf8
 
             # Send non utf8 encoded data
             server.send(s)
           }
           server.onerror { |error|
-            error.class.should == EventMachine::WebSocket::WebSocketError
-            error.message.should == "Data sent to WebSocket must be valid UTF-8 but was UTF-8 (valid: false)"
+            expect(error.class).to eq EventMachine::WebSocket::WebSocketError
+            expect(error.message).to eq "Data sent to WebSocket must be valid UTF-8 but was UTF-8 (valid: false)"
             done
           }
         }
@@ -253,7 +253,7 @@ shared_examples_for "a websocket server" do
 
             server.send(s)
 
-            s.encoding.should == Encoding.find("UTF-8")
+            expect(s.encoding).to eq Encoding.find("UTF-8")
             done
           }
         }

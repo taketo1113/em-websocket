@@ -27,7 +27,7 @@ describe "WebSocket server draft75" do
         ws.callback { }
 
         ws.stream { |msg|
-          msg.data.should == MSG
+          expect(msg.data).to eq MSG
           EventMachine.stop
         }
       end
@@ -59,7 +59,7 @@ describe "WebSocket server draft75" do
         ws.onopen {}
         ws.onclose {}
         ws.onmessage {|msg|
-          msg.should == messages[received.size]
+          expect(msg).to eq messages[received.size]
           received.push msg
 
           EventMachine.stop if received.size == messages.size
@@ -82,7 +82,7 @@ describe "WebSocket server draft75" do
       start_server { |ws|
         ws.onopen {}
         ws.onclose {
-          ws.state.should == :closed
+          expect(ws.state).to eq :closed
           EventMachine.stop
         }
       }
@@ -101,8 +101,8 @@ describe "WebSocket server draft75" do
         ws.onopen { fail }
         ws.onclose { EventMachine.stop }
         ws.onerror {|e|
-          e.should be_an_instance_of EventMachine::WebSocket::HandshakeError
-          e.message.should match('Not an upgrade request')
+          expect(e).to be_an_instance_of EventMachine::WebSocket::HandshakeError
+          expect(e.message).to match('Not an upgrade request')
           EventMachine.stop
         }
       }
@@ -113,7 +113,7 @@ describe "WebSocket server draft75" do
     em {
       start_server { |ws|
         ws.onopen {
-          ws.supports_close_codes?.should == false
+          expect(ws.supports_close_codes?).to eq false
           done
         }
       }

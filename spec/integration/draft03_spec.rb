@@ -56,7 +56,7 @@ describe "draft03" do
       em {
         start_server { |ws|
           ws.onmessage { |msg|
-            msg.should == 'Hello'
+            expect(msg).to eq 'Hello'
             done
           }
         }
@@ -72,7 +72,7 @@ describe "draft03" do
       em {
         start_server { |ws|
           ws.onmessage { |msg|
-            msg.should == 'Hello'
+            expect(msg).to eq 'Hello'
             done
           }
         }
@@ -100,7 +100,7 @@ describe "draft03" do
         
         connection.onmessage { |frame|
           next if frame.nil?
-          frame.should == "\x03\x05Hello"
+          expect(frame).to eq "\x03\x05Hello"
           done
         }
       }
@@ -112,8 +112,8 @@ describe "draft03" do
         
         start_server { |ws|
           ws.onbinary { |msg|
-            msg.encoding.should == Encoding.find("BINARY") if defined?(Encoding)
-            msg.should == data
+            expect(msg.encoding).to eq Encoding.find("BINARY") if defined?(Encoding)
+            expect(msg).to eq data
             done
           }
         }
@@ -133,8 +133,8 @@ describe "draft03" do
         
         start_server { |ws|
           ws.onbinary { |msg|
-            msg.encoding.should == Encoding.find("BINARY") if defined?(Encoding)
-            msg.should == data
+            expect(msg.encoding).to eq Encoding.find("BINARY") if defined?(Encoding)
+            expect(msg).to eq data
             done
           }
         }
@@ -163,7 +163,7 @@ describe "draft03" do
 
         # Check that close ack received
         connection.onmessage { |frame|
-          frame.should == "\x01\x00"
+          expect(frame).to eq "\x01\x00"
           done
         }
       }
@@ -183,11 +183,11 @@ describe "draft03" do
 
           # 5. Onclose event on server
           ws.onclose { |event|
-            event.should == {
+            expect(event).to eq({
               :code => 1005,
               :reason => "",
               :was_clean => true,
-            }
+            })
             done
           }
         }
@@ -197,14 +197,14 @@ describe "draft03" do
 
         # 3. Check that close frame recieved and acknowlege it
         connection.onmessage { |frame|
-          frame.should == "\x01\x00"
+          expect(frame).to eq "\x01\x00"
           ack_received = true
           connection.send_data("\x01\x00")
         }
 
         # 4. Check that connection is closed _after_ the ack
         connection.onclose {
-          ack_received.should == true
+          expect(ack_received).to eq true
         }
       }
     end
@@ -215,11 +215,11 @@ describe "draft03" do
       em {
         start_server { |ws|
           ws.onclose { |event|
-            event.should == {
+            expect(event).to eq ({
               :code => 1005,
               :reason => "",
               :was_clean => true,
-            }
+            })
             done
           }
         }
@@ -242,9 +242,9 @@ describe "draft03" do
 
             # 3. Check that exception raised if I attempt to send more data
             EM.add_timer(0.1) {
-              lambda {
+              expect {
                 ws.send('hello world')
-              }.should raise_error(EM::WebSocket::WebSocketError, 'Cannot send data frame since connection is closing')
+              }.to raise_error(EM::WebSocket::WebSocketError, 'Cannot send data frame since connection is closing')
               done
             }
           }
@@ -276,7 +276,7 @@ describe "draft03" do
             connection.send_data("\x02\x05Hello")
           else
             # 4. Check that the pong is received
-            frame.should == "\x03\x05Hello"
+            expect(frame).to eq "\x03\x05Hello"
             done
           end
         }
@@ -287,7 +287,7 @@ describe "draft03" do
       em {
         start_server { |ws|
           ws.onopen {
-            ws.supports_close_codes?.should == false
+            expect(ws.supports_close_codes?).to eq false
             done
           }
         }
