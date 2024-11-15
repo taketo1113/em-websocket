@@ -12,12 +12,14 @@ Gem::Specification.new do |s|
   s.summary     = %q{EventMachine based WebSocket server}
   s.description = %q{EventMachine based WebSocket server}
   s.license     = 'MIT'
+  s.required_ruby_version = ">= 2.4.0"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
+  s.add_dependency("base64")
   s.add_dependency("eventmachine", ">= 0.12.9")
   s.add_dependency("http_parser.rb", '~> 0')
 end
